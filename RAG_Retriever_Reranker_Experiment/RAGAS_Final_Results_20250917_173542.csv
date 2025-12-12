@@ -1,0 +1,6 @@
+﻿reranker,context_precision,context_recall,faithfulness,answer_relevancy,overall_score
+BM25 기본,0.6211,1.0,0.3333,0.8827,0.7093
+Cohere,0.975,1.0,1.0,0.8827,0.9644
+Hybrid CombSum,0.9765,1.0,0.0,0.8827,0.7148
+LLM 기본,0.6428,1.0,1.0,0.8827,0.8814
+Legal Rule Boost,0.5566,1.0,1.0,0.8827,0.8598

@@ -1,0 +1,26 @@
+﻿metric,rank,reranker,score
+context_precision,1,Hybrid CombSum,0.9765
+context_precision,2,Cohere,0.975
+context_precision,3,LLM 기본,0.6428
+context_precision,4,BM25 기본,0.6211
+context_precision,5,Legal Rule Boost,0.5566
+context_recall,1,BM25 기본,1.0
+context_recall,2,Cohere,1.0
+context_recall,3,Hybrid CombSum,1.0
+context_recall,4,LLM 기본,1.0
+context_recall,5,Legal Rule Boost,1.0
+faithfulness,1,Cohere,1.0
+faithfulness,2,LLM 기본,1.0
+faithfulness,3,Legal Rule Boost,1.0
+faithfulness,4,BM25 기본,0.3333
+faithfulness,5,Hybrid CombSum,0.0
+answer_relevancy,1,BM25 기본,0.8827
+answer_relevancy,2,Cohere,0.8827
+answer_relevancy,3,Hybrid CombSum,0.8827
+answer_relevancy,4,LLM 기본,0.8827
+answer_relevancy,5,Legal Rule Boost,0.8827
+overall_score,1,Cohere,0.9644
+overall_score,2,LLM 기본,0.8814
+overall_score,3,Legal Rule Boost,0.8598
+overall_score,4,Hybrid CombSum,0.7148
+overall_score,5,BM25 기본,0.7093

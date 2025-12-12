@@ -1,0 +1,2 @@
+﻿,context_precision,context_recall,faithfulness,answer_relevancy,overall_score
+BM25 기본,0.748115079355728,1.0,0.6666666666666666,0.8760143583387462,0.8226990260902852
