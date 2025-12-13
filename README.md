@@ -16,7 +16,7 @@ A Legal-Domain Retrieval-Augmented Generation (RAG) System with Comprehensive Re
    - 환경 설정, 데이터 로딩, 모델 실행까지 재현 가능
 -  **학술적 기여**
    - 법률 RAG 분야 실험적 비교 및 분석
-   - 관련 학회/저널 발표(논문/포스터)
+   - [관련 학회/저널 발표(논문)](https://koreascience.kr/article/CFKO202532532432735.page)
 
 ---
 
