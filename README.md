@@ -1,4 +1,4 @@
-# 🤖 Building_and_Evaluating_a_Legal-Domain_RAG_system
+# 🤖 Legal-Domain RAG System: Building & Evaluating
 
 A Legal-Domain Retrieval-Augmented Generation (RAG) System with Comprehensive Retriever & Reranker Evaluation for Enhanced Legal Information Retrieval
 
@@ -7,7 +7,7 @@ A Legal-Domain Retrieval-Augmented Generation (RAG) System with Comprehensive Re
 - **법률 도메인 전용 RAG 시스템 구축**
   - 법률 문서 검색 및 생성(RAG) 파이프라인 전반 구현
 - **다양한 Retriever & Reranker 비교 평가**
-  - BM25, Dence, TF-IDF 등 세 종류의 retriever 비교
+  - BM25, Dense, TF-IDF 등 세 종류의 retriever 비교
   - BM25, Cohere, Hybrid, LLM(GPT-4o 기반), Rule reranker 등 reranker들의 성능 분석
 -  **정량 평가 자동화 + 시각화 제공**
    - Top-k 성능 지표(Retrieval / Rerank) 자동 측정
@@ -173,7 +173,7 @@ A Legal-Domain Retrieval-Augmented Generation (RAG) System with Comprehensive Re
 - **데이터 엔지니어링**: 크롤링부터 QA 태깅, 임베딩 생성까지 전처리 파이프라인을 직접 설계·자동화.  
 - **LLM RAG 아키텍처링**: LangChain 추상화를 활용해 retriever/retrieval-augmented generation 모듈을 독립적으로 교체 가능하도록 구조화.  
 - **실험 자동화**: CLI 스크립트(예: `test_retrievers.py`, `comprehensive_test.py`)로 수십 가지 설정을 반복 실행하고, 결과 JSONL·CSV를 자동 수집하도록 구축.  
-- **정량 평가 역량**: RAGAS/시각화 코드를 직접 작성해 reranker 선택 의사결정에 활용했습니다.
+- **정량 평가**: RAGAS/시각화 코드를 직접 작성해 reranker 선택 의사결정에 활용했습니다.
 
 ---
 
