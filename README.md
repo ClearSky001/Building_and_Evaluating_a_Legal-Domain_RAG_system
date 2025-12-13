@@ -1,4 +1,24 @@
-# Building_and_Evaluating_a_Legal-Domain_RAG_system
+# 🤖 Building_and_Evaluating_a_Legal-Domain_RAG_system
+
+A Legal-Domain Retrieval-Augmented Generation (RAG) System with Comprehensive Retriever & Reranker Evaluation for Enhanced Legal Information Retrieval
+
+## Highlights
+
+- **법률 도메인 전용 RAG 시스템 구축**
+  - 법률 문서 검색 및 생성(RAG) 파이프라인 전반 구현
+- **다양한 Retriever & Reranker 비교 평가**
+  - BM25, Dence, TF-IDF 등 세 종류의 retriever 비교
+  - BM25, Cohere, Hybrid, LLM(GPT-4o 기반), Rule reranker 등 reranker들의 성능 분석
+-  **정량 평가 자동화 + 시각화 제공**
+   - Top-k 성능 지표(Retrieval / Rerank) 자동 측정
+   - 시각적 성능 비교 도표 포함
+-  **연구/재현 가능 코드 + 실험 스크립트 포함**
+   - 환경 설정, 데이터 로딩, 모델 실행까지 재현 가능
+-  **학술적 기여**
+   - 법률 RAG 분야 실험적 비교 및 분석
+   - 관련 학회/저널 발표(논문/포스터)
+
+---
 
 ## 프로젝트 소개 & 주요 성과 요약
 법무·세무 자문에 필요한 **부동산세 판례 문서 RAG 시스템**을 처음부터 구축하고, 다양한 리트리버·리랭커를 실험하며 정량적으로 비교한 프로젝트입니다. `Case Data Crawling`에서 직접 수집한 HTML 판례를 정제해 `output_chunks_with_embeddings.json`으로 임베딩을 만들고, `Naive_RAG` → `Retriever_Experiment` → `RAG_Retriever_Reranker_Experiment` 단계로 RAG 파이프라인을 설계하였습니다.  
