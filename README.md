@@ -33,7 +33,7 @@ A Legal-Domain Retrieval-Augmented Generation (RAG) System with Comprehensive Re
 ## 프로젝트 배경
 - 부동산 공시가격, 증여·양도세 등 복잡한 법령·지침은 최신 판례와 함께 조회되어야 하지만, 공개 말뭉치가 적고 보안상 외부 서비스 사용이 제한적입니다.  
 - 법무사·세무사가 실제로 묻는 질의 형태(설명형, 계산형, 절차형)를 반영한 **자체 QA 데이터**를 만들어야 했고, 한국어 기반 고품질 검색/생성 체인을 설계해야 했습니다.  
-- LLM 응답 신뢰성을 확보하기 위해 단순 BLEU나 EM 대신 **RAGAS**와 같은 맥락 기반 지표가 필요했습니다.
+- LLM 응답 신뢰성을 확보하기 위해 단순 BLEU나 EM 대신 **Ragas**와 같은 맥락 기반 지표가 필요했습니다.
 
 ---
 
@@ -133,19 +133,42 @@ A Legal-Domain Retrieval-Augmented Generation (RAG) System with Comprehensive Re
 ---
 
 ## 실험 결과 요약
-`RAGAS_Final_Results_20250917_173542.csv` 기준 상위 리랭커 성능은 다음과 같습니다.
+### Retriever 성능 평가
+Retriever들의 성능을 Ragas 매트릭으로 평가한 결과는 아래와 같았습니다. 문서들을 잘 검색해 오는지만 평가하기 위해 Faithfulness와 Answer Relevancy 지표는 평가에서 제외하였습니다.
 
-| Reranker                | context_precision | context_recall | faithfulness | answer_relevancy | overall_score |
+| Retriver               | Context Precision | Context Recall | Overall Score |
+|------------------------|------------------:|---------------:|--------------:|
+| Dense                  | **0.993**         | 0.91           | **0.967556**  |
+| TF-IDF                 | 0.881             | 0.86           | 0.860875      |
+| BM25                   | 0.891             | **0.92**       | 0.901972      |
+
+### Reranker 성능 평가
+Ragas 평가 함수에서 `'answer' : ground_truth`로 동일하게 하여 리랭커들의 성능만을 평가한 결과는 아래와 같았습니다.
+
+| Reranker               | Context Precision | Context Recall | Faithfulness | Answer Relevancy | Overall Score |
 |------------------------|------------------:|---------------:|-------------:|-----------------:|--------------:|
-| Cohere Rerank          | **0.9750**        | 1.0000         | **1.0000**   | 0.8827           | **0.9644**    |
-| LLM(gpt-4o Reranker)   | 0.6428            | 1.0000         | **1.0000**   | 0.8827           | 0.8814        |
-| Legal Rule Boost       | 0.5566            | 1.0000         | **1.0000**   | 0.8827           | 0.8598        |
-| Hybrid CombSum         | **0.9765**        | 1.0000         | 0.0000       | 0.8827           | 0.7148        |
-| BM25                   | 0.6211            | 1.0000         | 0.3333       | **0.8827**       | 0.7093        |
+| BM25                   | 0.621             | 1.000          | 0.333        | *0.883*          | 0.709276      |
+| Cohere                 | 0.975             | 1.000          | 1.000        | *0.883*          | **0.964421**  |
+| Hybrid                 | **0.977**         | 1.000          | 0.000        | *0.883*          | 0.714807      |
+| LLM                    | 0.643             | 1.000          | 1.000        | *0.883*          | 0.881360      |
+| Legal Rule Boost       | 0.557             | 1.000          | 1.000        | *0.883*          | 0.859829      |
 
-- **Context Precision 1위**는 Hybrid CombSum이지만 Faithfulness 0으로, Cohere Rerank가 가장 안정적인 균형을 보여줍니다.  
-- `ragas_radar_charts.png`, `ragas_heatmaps.png`, `ragas_line_charts.png`은 지표 변화를 한눈에 보여줍니다.  
-- `Reranker_RAGAS_Comparison.csv`에는 reranker/metric별 순위와 raw score가 모두 포함됩니다.
+- *Context Precision, Context Recall, Faithfulness, Answer Relevancy 지표는 소수점 넷째 자리에서 반올림. Overall Score는 소수점 일곱째 자리에서 반올림.*
+- **Answer Relevancy** 지표가 모두 약 0.883으로 동일함을 알 수 있습니다.
+- **리랭킹 성능으로는 Cohere 리랭커(rerank-multilingual-v3.0 리랭커)가 가장 우수**하였습니다.
+
+Ragas 평가 함수에서 `'answer' : llm_answer`로 설정하여 LLM(GPT-4o)의 답변 품질까지 평가한 결과는 아래와 같았습니다.
+
+| Reranker               | Context Precision | Context Recall | Faithfulness | Answer Relevancy | Overall Score |
+|------------------------|------------------:|---------------:|-------------:|-----------------:|--------------:|
+| BM25                   | 0.748             | 1.000          | 0.667        | 0.876            | 0.822699      |
+| Cohere                 | 0.975             | 1.000          | 1.000        | 0.886            | **0.965305**  |
+| Hybrid                 | **1.000**         | 1.000          | 0.833        | 0.881            | 0.928634      |
+| LLM                    | 0.643             | 1.000          | 1.000        | 0.882            | 0.881114      |
+| Legal Rule Boost       | 0.557             | 1.000          | 1.000        | 0.883            | 0.859829      |
+
+- *Context Precision, Context Recall, Faithfulness, Answer Relevancy 지표는 소수점 넷째 자리에서 반올림. Overall Score는 소수점 일곱째 자리에서 반올림.*
+- 각각 구축한 **RAG 시스템들의 답변 품질까지 종합적으로 진행한 평가에서도 Cohere 리랭커(rerank-multilingual-v3.0 리랭커)가 가장 우수**하였습니다.
 
 ---
 
