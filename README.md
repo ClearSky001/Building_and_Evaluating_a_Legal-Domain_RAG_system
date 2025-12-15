@@ -24,8 +24,8 @@ A Legal-Domain Retrieval-Augmented Generation (RAG) System with Comprehensive Re
 법무·세무 자문에 필요한 **부동산세 판례 문서 RAG 시스템**을 처음부터 구축하고, 다양한 리트리버·리랭커를 실험하며 정량적으로 비교한 프로젝트입니다. `Case Data Crawling`에서 직접 수집한 HTML 판례를 정제해 `output_chunks_with_embeddings.json`으로 임베딩을 만들고, `Naive_RAG` → `Retriever_Experiment` → `RAG_Retriever_Reranker_Experiment` 단계로 RAG 파이프라인을 설계하였습니다.  
 - **데이터 파이프라인**: Selenium/BeautifulSoup 크롤러(`[한이음]크롤러.ipynb`)와 `Law_Data_Collecting_Process.ipynb`를 통해 판례 목록·원문·QA 페어를 구축했습니다.  
 - **법무 도메인 RAG 시스템**: `Improved_Basic_RAG.py`와 `RAG_with_Retriever.py`는 LangChain, `multilingual-e5-large-instruct`, GPT-4o 등을 엮은 인터랙티브 RAG 레퍼런스입니다.  
-- **Retriever/Reranker 풀 파이프라인**: Dense, BM25, TF-IDF, Hybrid RRF, Cross-Encoder, Embedding, LLM, Rule 기반 등 20여 종 리랭커를 스크립트(`comprehensive_test.py`, `test_final_rerankers.py`) 하나로 검증할 수 있게 했습니다.  
-- **정량 평가 자동화**: `Q-A Data for Ragas Evaluation/real_estate_tax_QA.json`과 RAGAS 노트북/스크립트를 이용해 context precision·faithfulness 등을 반복 측정 후 시각화(`ragas_bar_charts.png` 등)했습니다.  
+- **Retriever/Reranker 풀 파이프라인**: Dense, BM25, TF-IDF, Hybrid RRF, Cross-Encoder, Embedding, LLM, Rule 기반 등 20여 종 리랭커를 스크립트(`comprehensive_test.py`, `test_final_rerankers.py`, `test_fixed_rerankers.ipynb`) 하나로 검증할 수 있게 했습니다.  
+- **정량 평가 자동화**: `Q-A Data for Ragas Evaluation/real_estate_tax_QA.json`과 RAGAS 노트북/스크립트를 이용해 context precision·faithfulness 등의 Ragas 평가 지표들을 반복 측정하였습니다.  
 - **논문화·발표**: 최종 실험 결과는 `Accepted Paper & Presentation/`에 수록된 논문·발표 자료로 제출되어 대회·학회 공유까지 연결되었습니다.
 
 ---
@@ -38,12 +38,19 @@ A Legal-Domain Retrieval-Augmented Generation (RAG) System with Comprehensive Re
 ---
 
 ## 기술 스택
-- **언어**: Python 3.10+
+- **언어**: Python 3.11.9
 - **LLM & 오케스트레이션**: LangChain, LangChain Core/Community, LangChain OpenAI, LangSmith, dotenv
 - **임베딩 & 검색**: SentenceTransformers (`intfloat/multilingual-e5-large-instruct`, GTE, MPNet, Jina, Cohere 등), BM25 (`rank-bm25`, `langchain_community.retrievers.BM25Retriever`), TF-IDF(`scikit-learn`), Hybrid RRF, EnsembleRetriever
 - **리랭커**: SentenceTransformer CrossEncoder, Cohere Rerank API, LLM 기반 Pairwise/Listwise reranker, 규칙 기반 LegalRuleBoost 등 (`RAG_with_Various_Rerankers/`)
 - **데이터/시각화**: Selenium, BeautifulSoup4, pandas, numpy, matplotlib, ragas, datasets(HF), Plotly/Seaborn(notebooks)
 - **기타**: python-dotenv, tqdm, argparse, csv/json 유틸, chromedriver
+
+### 실행 전 준비 사항
+- Python 3.11.9 환경을 권장하며, 대용량 임베딩 파일(`Naive_RAG/output_chunks_with_embeddings.json`, `RAG_Retriever_Reranker_Experiment/output_chunks_with_embeddings.json`)이 저장소에 포함되어 있습니다.
+- 일부 리랭커는 추가 API 키가 필요합니다.
+  - `OPENAI_API_KEY` (필수): GPT-4o 기반 LLM 호출, LangChain OpenAI 래퍼에서 사용
+  - `COHERE_API_KEY` (선택): Cohere Rerank 모델을 사용할 때 필요 (`RAG_with_Various_Rerankers/CrossEncoder/RAG_Cohere_Rerank_FINAL.py`)
+  - `LANGSMITH_API_KEY` (선택): LangSmith 로깅
 
 ---
 
@@ -88,7 +95,12 @@ A Legal-Domain Retrieval-Augmented Generation (RAG) System with Comprehensive Re
    ```bash
    cd Building_and_Evaluating_a_Legal-Domain_RAG_system
    python -m venv .venv
+   
+   # Windows
    .\.venv\Scripts\activate
+   
+   # macOS/Linux
+   source .venv/bin/activate
    pip install -U langchain langchain-openai langchain-community sentence-transformers rank-bm25 ragas datasets pandas numpy scikit-learn python-dotenv matplotlib seaborn plotly selenium beautifulsoup4 tqdm
    ```
 2. **환경 변수 설정 (`.env`)**
@@ -96,9 +108,12 @@ A Legal-Domain Retrieval-Augmented Generation (RAG) System with Comprehensive Re
    OPENAI_API_KEY=sk-...
    LANGSMITH_ENDPOINT=https://api.smith.langchain.com
    LANGSMITH_API_KEY=lsv2-...
+   COHERE_API_KEY=...
    ```
-3. **(선택) 임베딩 갱신**  
+3. **(선택) 임베딩 갱신**
    - `Naive_RAG/Basic_RAG_with_HTML_JSON_File_Based.ipynb` or `Improved_Basic_RAG.py`에서 `output_chunks_with_embeddings.json`을 재생성합니다.
+   - 리랭커 실험은 `RAG_Retriever_Reranker_Experiment/output_chunks_with_embeddings.json` 파일을 읽으므로, 최신 파일을 Naive_RAG에서 생성한 뒤 동일 이름으로 복사해두면 CLI 테스트 스크립트가 바로 동작합니다.
+
 4. **베이스라인 RAG 실행**
    ```bash
    cd Naive_RAG
@@ -122,7 +137,7 @@ A Legal-Domain Retrieval-Augmented Generation (RAG) System with Comprehensive Re
 6. **RAGAS 평가 & 시각화**
    ```bash
    # retriever callable을 평가 (예: Retriever_Experiment/Retriever eval.py)
-   python Retriever_Experiment/"Retriever eval.py"
+   python "Retriever_Experiment/Retriever eval.py"
    # 또는 노트북 실행
    jupyter notebook RAG_Retriever_Reranker_Experiment/RAGAS_Full_Evaluation.ipynb
    ```
@@ -173,13 +188,13 @@ Ragas 평가 함수에서 `'answer' : llm_answer`로 설정하여 LLM(GPT-4o)의
 ---
 
 ## 디렉터리 가이드
-- `Case Data Crawling/`: 크롤러 노트북, chromedriver, 판례 HTML/CSV.  
-- `Data Collecting Process/`: 수집 이슈 정리 노트와 보완 자료.  
-- `Naive_RAG/`: 기본 RAG 코드, 실험 출력(`exp_outputs/`), retriever 가이드/테스트 스크립트.  
-- `Retriever_Experiment/`: retriever 평가 노트북 & `Retriever eval.py`.  
-- `Q-A Data for Ragas Evaluation/`: 평가용 QA 레퍼런스 JSON.  
-- `RAG_Retriever_Reranker_Experiment/`: 리랭커 모듈, 테스트 스크립트, RAGAS 노트북·시각화, 결과 CSV/PNG.  
-- `Accepted Paper & Presentation/`: 제출된 논문 PDF와 발표 자료.  
+- `Case Data Crawling/`: 크롤러 노트북, chromedriver, 판례 HTML/CSV.
+- `Data Collecting Process/`: 수집 이슈 정리 노트와 보완 자료.
+- `Naive_RAG/`: 기본 RAG 코드, 실험 출력(`exp_outputs/`), retriever 가이드/테스트 스크립트.
+- `Retriever_Experiment/`: retriever 평가 노트북 & `Retriever eval.py` (파일명에 공백이 있으므로 실행 시 따옴표 필요).
+- `Q-A Data for Ragas Evaluation/`: 평가용 정답 QA JSON 파일(`real_estate_tax_QA.json`).
+- `RAG_Retriever_Reranker_Experiment/`: 리랭커 모듈, 테스트 스크립트, RAGAS 노트북·시각화, 결과 CSV/PNG, 실험에 필요한 `output_chunks_with_embeddings.json`.
+- `Accepted Paper & Presentation/`: 제출된 논문 PDF와 발표 자료.
 - `Retriever_Experiment/Retriever.ipynb`, `RAG_Retriever_Reranker_Experiment/Reranker.ipynb`: 실험용 Jupyter 기반 워크플로.
 
 ---
