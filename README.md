@@ -151,7 +151,7 @@ A Legal-Domain Retrieval-Augmented Generation (RAG) System with Comprehensive Re
 ### Retriever 성능 평가
 Retriever들의 성능을 Ragas 매트릭으로 평가한 결과는 아래와 같았습니다. 문서들을 잘 검색해 오는지만 평가하기 위해 Faithfulness와 Answer Relevancy 지표는 평가에서 제외하였습니다.
 
-| Retriver               | Context Precision | Context Recall | Overall Score |
+| Retriever               | Context Precision | Context Recall | Overall Score |
 |------------------------|------------------:|---------------:|--------------:|
 | Dense                  | **0.993**         | 0.91           | **0.967556**  |
 | TF-IDF                 | 0.881             | 0.86           | 0.860875      |
