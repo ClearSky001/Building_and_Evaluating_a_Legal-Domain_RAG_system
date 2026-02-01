@@ -79,14 +79,15 @@ A Legal-Domain Retrieval-Augmented Generation (RAG) System with Comprehensive Re
    - `Retriever eval.py`: HF `datasets`, `ragas` 기반으로 사용자 정의 retriever 콜백을 평가합니다.  
    - `Retriever.ipynb`: 실험 노트북 버전으로, Stratified 샘플과 지표(precision/recall)를 시각화합니다.
 3. **Reranker & 압축리트리버 실험 (`RAG_Retriever_Reranker_Experiment/`)**  
-   - `RAG_with_Various_Rerankers/`: `fixed_base_v2.py`, `BaseReranker`, `SimpleCompressionRetriever`를 베이스로 하여 BM25, CrossEncoder, Embedding, Hybrid, LLM, Rule 계열 서브 디렉터리로 분기.  
+   - `RAG_with_Various_Rerankers/`: `fixed_base_v2.py`에 정의된 `BaseReranker`, `SimpleCompressionRetriever` 클래스를 베이스로 하여 BM25, CrossEncoder, Embedding, Hybrid, LLM, Rule 계열 서브 디렉터리로 분기.
    - `comprehensive_test.py`, `test_final_rerankers.py`, `final_test.py`: 모든/파이널 리랭커 로더 자동 검증.  
    - `RAGAS_Full_Evaluation.ipynb`, `RAGAS_Reranker_Performance_Comparison.ipynb`, `Visualize_RAGAS_results.ipynb`: GPU 버전 평가, 결과 대시보드, heatmap/line/radar chart 이미지를 생성합니다.
-4. **정량 평가 & 리포트 (`Reranker_RAGAS_result/`, `ragas_*.png`)**  
-   - 리랭커별 `*_ragas_evaluation_*.csv` + 통합 `Reranker_RAGAS_Comparison.csv`(xlsx 포맷) + 순위표(`RAGAS_Rankings_*.csv`).  
+4. **정량 평가 & 리포트 (`RAG_Retriever_Reranker_Experiment/`, `Reranker_RAGAS_result/`)**
+   - `RAG_Retriever_Reranker_Experiment/` 폴더 내에 통합 순위표(`RAGAS_Rankings_*.csv`), 최종 결과(`RAGAS_Final_Results_*.csv`) 및 시각화 차트(`ragas_*.png`)가 위치합니다.
+   - `Reranker_RAGAS_result/` 하위 폴더에는 리랭커별 상세 평가 결과(`*_ragas_evaluation_*.csv`)와 통합 비교표(`Reranker_RAGAS_Comparison.csv`)가 저장됩니다.
    - `RAGAS_Final_Results_20250917_173542.csv`는 Cohere Rerank가 overall_score 0.9644로 최고임을 보여줍니다.
 5. **결과 공유 (`Accepted Paper & Presentation/`)**  
-   - `Building and Evaluating a Legal-Domain RAG system...pdf`, `Paper_Presentation.pdf`에서 연구 배경, 파이프라인 다이어그램, RAGAS 결과를 확인할 수 있습니다.
+   - `Building and Evaluating a Legal-Domain RAG system_ A Comparative Study of Retrievers and Rerankers in the Real Estate Tax field.pdf`, `Paper_Presentation.pdf`에서 연구 배경, 파이프라인 다이어그램, RAGAS 결과를 확인할 수 있습니다.
 
 ---
 
