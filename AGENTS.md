@@ -8,8 +8,10 @@ This is a Python research project for a Legal-Domain RAG system (Korean real est
 
 - Python 3.12 with a virtualenv at `.venv`. Activate with `source /workspace/.venv/bin/activate`.
 - All Python dependencies are listed in `README.md` (§ 사용법 > 환경 준비). There is no `requirements.txt` or `pyproject.toml`.
+- **LangChain version constraint**: This codebase uses `from langchain.retrievers import EnsembleRetriever` which requires `langchain<1.0`. The update script pins `"langchain>=0.3,<1.0"` and matching `langchain-openai`, `langchain-community`, `langchain-core` versions. Do not upgrade to langchain 1.x without updating all import paths.
 - `OPENAI_API_KEY` is **required** for any RAG pipeline execution (LLM generation). Without it, only document retrieval / reranker initialization tests work.
 - `COHERE_API_KEY` is optional (only for `RAG_Cohere_Rerank_FINAL.py`).
+- LangSmith tracing is enabled by default but non-blocking — warnings about missing `LANGSMITH_API_KEY` can be ignored safely.
 
 ### Running tests
 
