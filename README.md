@@ -2,6 +2,231 @@
 
 A Legal-Domain Retrieval-Augmented Generation (RAG) System with Comprehensive Retriever & Reranker Evaluation for Enhanced Legal Information Retrieval
 
+**English** | [한국어](#한국어)
+
+## Highlights
+
+- **A RAG system built for the legal domain**
+  - Implemented the full retrieval-augmented generation (RAG) pipeline for legal documents
+- **Comparative evaluation of various retrievers & rerankers**
+  - Compared three kinds of retrievers: BM25, Dense, and TF-IDF
+  - Analyzed the performance of rerankers including BM25, Cohere, Hybrid, LLM (GPT-4o-based), and Rule rerankers
+- **Automated quantitative evaluation + visualizations**
+  - Automatically measures Top-k performance metrics (Retrieval / Rerank)
+  - Includes visual performance comparison charts
+- **Research-ready, reproducible code + experiment scripts**
+  - Reproducible from environment setup and data loading to model execution
+- **Academic contribution**
+  - Experimental comparison and analysis in the legal RAG field
+  - [Presented at an academic conference (paper)](https://koreascience.kr/article/CFKO202532532432735.page)
+
+---
+
+## Project Overview & Key Results
+This project built a **RAG system over real-estate tax case law** from scratch for legal and tax advisory work, and quantitatively compared a range of retrievers and rerankers through experiments. HTML case documents collected in `Case Data Crawling` were cleaned and embedded into `output_chunks_with_embeddings.json`, and the RAG pipeline was designed in stages: `Naive_RAG` → `Retriever_Experiment` → `RAG_Retriever_Reranker_Experiment`.  
+- **Data pipeline**: Built case lists, full texts, and QA pairs with a Selenium/BeautifulSoup crawler (`[한이음]크롤러.ipynb`) and `Law_Data_Collecting_Process.ipynb`.  
+- **Legal-domain RAG system**: `Improved_Basic_RAG.py` and `RAG_with_Retriever.py` are interactive RAG references that combine LangChain, `multilingual-e5-large-instruct`, GPT-4o, and more.  
+- **Full retriever/reranker pipeline**: About 20 rerankers (Dense, BM25, TF-IDF, Hybrid RRF, Cross-Encoder, Embedding, LLM, rule-based, and more) can be validated with a single script (`comprehensive_test.py`, `test_final_rerankers.py`, `test_fixed_rerankers.ipynb`).  
+- **Automated quantitative evaluation**: Repeatedly measured Ragas metrics such as context precision and faithfulness using `Q-A Data for Ragas Evaluation/real_estate_tax_QA.json` and the RAGAS notebooks/scripts.  
+- **Paper & presentation**: The final results were submitted as the paper and presentation in `Accepted Paper & Presentation/`, and shared at a competition and an academic conference.
+
+---
+
+## Background
+- Complex laws and guidelines on officially assessed real-estate prices, gift tax, capital gains tax, and more must be looked up together with recent case law, but public corpora are scarce and the use of external services is limited for security reasons.  
+- We had to build **our own QA data** that reflects the kinds of questions legal and tax professionals actually ask (explanatory, calculation, and procedural), and design a high-quality Korean retrieval/generation chain.  
+- To make LLM answers reliable, we needed context-based metrics such as **Ragas** instead of simple BLEU or EM.
+
+---
+
+## Tech Stack
+- **Language**: Python 3.11.9
+- **LLM & orchestration**: LangChain, LangChain Core/Community, LangChain OpenAI, LangSmith, dotenv
+- **Embeddings & retrieval**: SentenceTransformers (`intfloat/multilingual-e5-large-instruct`, GTE, MPNet, Jina, Cohere, etc.), BM25 (`rank-bm25`, `langchain_community.retrievers.BM25Retriever`), TF-IDF (`scikit-learn`), Hybrid RRF, EnsembleRetriever
+- **Rerankers**: SentenceTransformer CrossEncoder, Cohere Rerank API, LLM-based pairwise/listwise rerankers, rule-based LegalRuleBoost, etc. (`RAG_with_Various_Rerankers/`)
+- **Data/Visualization**: Selenium, BeautifulSoup4, pandas, numpy, matplotlib, ragas, datasets (HF), Plotly/Seaborn (notebooks)
+- **Other**: python-dotenv, tqdm, argparse, csv/json utilities, chromedriver
+
+### Before You Run
+- A Python 3.11.9 environment is recommended. The large embedding files (`Naive_RAG/output_chunks_with_embeddings.json`, `RAG_Retriever_Reranker_Experiment/output_chunks_with_embeddings.json`) are included in the repository.
+- Some rerankers need additional API keys.
+  - `OPENAI_API_KEY` (required): Used for GPT-4o-based LLM calls and the LangChain OpenAI wrapper
+  - `COHERE_API_KEY` (optional): Needed to use the Cohere Rerank model (`RAG_with_Various_Rerankers/CrossEncoder/RAG_Cohere_Rerank_FINAL.py`)
+  - `LANGSMITH_API_KEY` (optional): LangSmith logging
+
+---
+
+## Data Collection & Preprocessing
+1. **Case collection (`Case Data Crawling/`)**  
+   - `판례_목록.csv` (case list), `merged_cases.html`: Case metadata and full texts collected from public portals such as the National Tax Service and the Supreme Court.  
+   - `판례_크롤링_결과/BeautifulSoup_결과`, `.../Selenium_결과` (case crawling results): Split into two pipelines to cover both static and dynamic pages.  
+   - `chromedriver.exe` and `[한이음]크롤러.ipynb` (Hanium crawler) automate the whole process (search → open the detail page → save the HTML).
+2. **Data issues & cleaning notes (`Data Collecting Process/`)**  
+   - `Law_Data_Collecting_Process.ipynb` and `법무자문 프로젝트 데이터 수집에서의 이슈/` (issues in data collection for the legal advisory project) document missing fields, duplicate cases, HTML character issues, and more.
+3. **QA set construction (`Q-A Data for Ragas Evaluation/real_estate_tax_QA.json`)**  
+   - 40+ reference pairs with `question`, `ground_truth`, `ground_truth_contexts`, and `metadata (case_number, topic)` fields.  
+   - Reused for RAGAS, reranker experiments, and document summarization tests.
+4. **Embedding build (`Naive_RAG/output_chunks_with_embeddings.json`, about 34MB)**  
+   - Chunks the case HTML and embeds it with the `SentenceTransformerEmbeddings` class → stores the document, chunk_index, filename, and embedding together.  
+   - The extraction parameters and quality logs can be checked in `Basic_RAG_with_HTML_JSON_File_Based.ipynb`.
+
+---
+
+## Pipeline & Experiment Scenarios
+1. **Naive RAG baseline (`Naive_RAG/`)**  
+   - `Improved_Basic_RAG.py`: A pure Python module that reads the `.json` embeddings and builds a custom `NaiveVectorStore` + `ChatOpenAI(gpt-4o-mini)` chain.  
+   - `RAG_with_Retriever.py`: Lets you control the retriever type, k value, log path, and LangSmith options from the CLI through the `ExperimentConfig` dataclass.  
+   - `test_retrievers.py`: Runs `naive_cosine_e5`, `bm25`, `tfidf`, `hybrid_rrf`, etc. in sequence and collects the results in `exp_outputs/`.
+2. **Retriever comparison (`Retriever_Experiment/`)**  
+   - `Retriever eval.py`: Evaluates custom retriever callbacks with HF `datasets` and `ragas`.  
+   - `Retriever.ipynb`: The notebook version of the experiment; visualizes stratified samples and metrics (precision/recall).
+3. **Reranker & compression retriever experiments (`RAG_Retriever_Reranker_Experiment/`)**  
+   - `RAG_with_Various_Rerankers/`: Built on `fixed_base_v2.py`, `BaseReranker`, and `SimpleCompressionRetriever`, and branches into BM25, CrossEncoder, Embedding, Hybrid, LLM, and Rule subdirectories.  
+   - `comprehensive_test.py`, `test_final_rerankers.py`, `final_test.py`: Automatically validate the loaders for all/final rerankers.  
+   - `RAGAS_Full_Evaluation.ipynb`, `RAGAS_Reranker_Performance_Comparison.ipynb`, `Visualize_RAGAS_results.ipynb`: Produce the GPU-version evaluation, a results dashboard, and heatmap/line/radar chart images.
+4. **Quantitative evaluation & reports (`Reranker_RAGAS_result/`, `ragas_*.png`)**  
+   - Per-reranker `*_ragas_evaluation_*.csv` + combined `Reranker_RAGAS_Comparison.csv` (xlsx format) + ranking tables (`RAGAS_Rankings_*.csv`).  
+   - `RAGAS_Final_Results_20250917_173542.csv` shows that Cohere Rerank is the best, with an overall_score of 0.9644.
+5. **Sharing results (`Accepted Paper & Presentation/`)**  
+   - The research background, pipeline diagrams, and RAGAS results are in `Building and Evaluating a Legal-Domain RAG system...pdf` and `Paper_Presentation.pdf`.
+
+---
+
+## Usage (Quick Start)
+1. **Prepare the environment**
+   ```bash
+   cd Building_and_Evaluating_a_Legal-Domain_RAG_system
+   python -m venv .venv
+   
+   # Windows
+   .\.venv\Scripts\activate
+   
+   # macOS/Linux
+   source .venv/bin/activate
+   pip install -U langchain langchain-openai langchain-community sentence-transformers rank-bm25 ragas datasets pandas numpy scikit-learn python-dotenv matplotlib seaborn plotly selenium beautifulsoup4 tqdm
+   ```
+2. **Set environment variables (`.env`)**
+   ```ini
+   OPENAI_API_KEY=sk-...
+   LANGSMITH_ENDPOINT=https://api.smith.langchain.com
+   LANGSMITH_API_KEY=lsv2-...
+   COHERE_API_KEY=...
+   ```
+3. **(Optional) Rebuild the embeddings**
+   - Regenerate `output_chunks_with_embeddings.json` with `Naive_RAG/Basic_RAG_with_HTML_JSON_File_Based.ipynb` or `Improved_Basic_RAG.py`.
+   - The reranker experiments read `RAG_Retriever_Reranker_Experiment/output_chunks_with_embeddings.json`, so if you generate the latest file in Naive_RAG and copy it there under the same name, the CLI test scripts work right away.
+
+4. **Run the baseline RAG**
+   ```bash
+   cd Naive_RAG
+   python RAG_with_Retriever.py --retriever_id naive_cosine_e5 --k_ctx 6
+   # BM25
+   python RAG_with_Retriever.py --retriever_id bm25 --bm25_k1 1.2 --bm25_b 0.7
+   # Hybrid RRF
+   python RAG_with_Retriever.py --retriever_id hybrid_rrf --hybrid_weights 0.6 0.4
+   # Batch experiments
+   python test_retrievers.py
+   ```
+5. **Reranker benchmark**
+   ```bash
+   cd ..\RAG_Retriever_Reranker_Experiment
+   python comprehensive_test.py          # Import/initialization test for all models
+   python test_final_rerankers.py        # FINAL models (BM25, CrossEncoder, Embedding)
+   python final_test.py                  # Lightweight smoke test
+   python simple_test.py                 # Single-query debugging
+   python test_imports.py                # Check package dependencies
+   ```
+6. **RAGAS evaluation & visualization**
+   ```bash
+   # Evaluate a retriever callable (e.g., Retriever_Experiment/Retriever eval.py)
+   python "Retriever_Experiment/Retriever eval.py"
+   # Or run the notebook
+   jupyter notebook RAG_Retriever_Reranker_Experiment/RAGAS_Full_Evaluation.ipynb
+   ```
+7. **Check the results**  
+   - `RAG_Retriever_Reranker_Experiment/ragas_*_charts.png`, `RAGAS_Rankings_*.csv`, `exp_outputs/`.  
+   - For the paper/presentation, see `Accepted Paper & Presentation/`.
+
+---
+
+## Results Summary
+### Retriever Evaluation
+The retrievers were evaluated with Ragas metrics, with the results below. To evaluate only how well documents are retrieved, the Faithfulness and Answer Relevancy metrics were excluded.
+
+| Retriever               | Context Precision | Context Recall | Overall Score |
+|------------------------|------------------:|---------------:|--------------:|
+| Dense                  | **0.993**         | 0.91           | **0.967556**  |
+| TF-IDF                 | 0.881             | 0.86           | 0.860875      |
+| BM25                   | 0.891             | **0.92**       | 0.901972      |
+
+### Reranker Evaluation
+With `'answer' : ground_truth` set identically in the Ragas evaluation function so that only reranker performance is measured, the results were as follows.
+
+| Reranker               | Context Precision | Context Recall | Faithfulness | Answer Relevancy | Overall Score |
+|------------------------|------------------:|---------------:|-------------:|-----------------:|--------------:|
+| BM25                   | 0.621             | 1.000          | 0.333        | *0.883*          | 0.709276      |
+| Cohere                 | 0.975             | 1.000          | 1.000        | *0.883*          | **0.964421**  |
+| Hybrid                 | **0.977**         | 1.000          | 0.000        | *0.883*          | 0.714807      |
+| LLM                    | 0.643             | 1.000          | 1.000        | *0.883*          | 0.881360      |
+| Legal Rule Boost       | 0.557             | 1.000          | 1.000        | *0.883*          | 0.859829      |
+
+- *Context Precision, Context Recall, Faithfulness, and Answer Relevancy are rounded to three decimal places. Overall Score is rounded to six decimal places.*
+- All **Answer Relevancy** scores are the same, at about 0.883.
+- **In reranking performance, the Cohere reranker (rerank-multilingual-v3.0) performed best.**
+
+With `'answer' : llm_answer` set in the Ragas evaluation function to also evaluate the answer quality of the LLM (GPT-4o), the results were as follows.
+
+| Reranker               | Context Precision | Context Recall | Faithfulness | Answer Relevancy | Overall Score |
+|------------------------|------------------:|---------------:|-------------:|-----------------:|--------------:|
+| BM25                   | 0.748             | 1.000          | 0.667        | 0.876            | 0.822699      |
+| Cohere                 | 0.975             | 1.000          | 1.000        | 0.886            | **0.965305**  |
+| Hybrid                 | **1.000**         | 1.000          | 0.833        | 0.881            | 0.928634      |
+| LLM                    | 0.643             | 1.000          | 1.000        | 0.882            | 0.881114      |
+| Legal Rule Boost       | 0.557             | 1.000          | 1.000        | 0.883            | 0.859829      |
+
+- *Context Precision, Context Recall, Faithfulness, and Answer Relevancy are rounded to three decimal places. Overall Score is rounded to six decimal places.*
+- **In the comprehensive evaluation that also covered the answer quality of each RAG system we built, the Cohere reranker (rerank-multilingual-v3.0) again performed best.**
+
+---
+
+## Directory Guide
+- `Case Data Crawling/`: Crawler notebook, chromedriver, case HTML/CSV.
+- `Data Collecting Process/`: Notes on collection issues and supplementary materials.
+- `Naive_RAG/`: Baseline RAG code, experiment outputs (`exp_outputs/`), retriever guide/test scripts.
+- `Retriever_Experiment/`: Retriever evaluation notebook & `Retriever eval.py` (the file name contains a space, so quote it when running).
+- `Q-A Data for Ragas Evaluation/`: Ground-truth QA JSON file for evaluation (`real_estate_tax_QA.json`).
+- `RAG_Retriever_Reranker_Experiment/`: Reranker modules, test scripts, RAGAS notebooks and visualizations, result CSV/PNG files, and the `output_chunks_with_embeddings.json` needed for the experiments.
+- `Accepted Paper & Presentation/`: The submitted paper PDF and presentation materials.
+- `Retriever_Experiment/Retriever.ipynb`, `RAG_Retriever_Reranker_Experiment/Reranker.ipynb`: Jupyter-based experiment workflows.
+
+---
+
+## Future Plans
+- Automatically tag cases and administrative interpretations by year/tax type, and experiment with a **multi-vector store + filtering** strategy.  
+- Convert `output_chunks_with_embeddings.json` into a LangChain `FAISS` or `Chroma` store to support online updates.  
+- Add **Answer Similarity** and **Human Preference Logging** on top of RAGAS to tune the rerankers.  
+- Automate `Case Data Crawling` with a cron job/CI to track law amendments.
+
+---
+
+## Personal Contributions & Lessons Learned
+- **Data engineering**: Designed and automated the preprocessing pipeline myself, from crawling to QA tagging and embedding generation.  
+- **LLM RAG architecture**: Used LangChain abstractions to structure the retriever/retrieval-augmented generation modules so they can be swapped independently.  
+- **Experiment automation**: Built CLI scripts (e.g., `test_retrievers.py`, `comprehensive_test.py`) to run dozens of configurations repeatedly and collect the result JSONL/CSV files automatically.  
+- **Quantitative evaluation**: Wrote the RAGAS/visualization code myself and used it to decide which reranker to choose.
+
+---
+
+## References
+- `Accepted Paper & Presentation/Building and Evaluating a Legal-Domain RAG system_ A Comparative Study of Retrievers and Rerankers in the Real Estate Tax field.pdf`
+- `Accepted Paper & Presentation/Paper_Presentation.pdf`
+- `RAG_Retriever_Reranker_Experiment/RAGAS_Full_Evaluation.ipynb`
+- `RAG_Retriever_Reranker_Experiment/ragas_bar_charts.png` and other visualization assets
+
+---
+
+# 한국어
+
 ## Highlights
 
 - **법률 도메인 전용 RAG 시스템 구축**
