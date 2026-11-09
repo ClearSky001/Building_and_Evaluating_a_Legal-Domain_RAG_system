@@ -73,6 +73,11 @@ This project built a **RAG system over real-estate tax case law** from scratch f
 ---
 
 ## Pipeline & Experiment Scenarios
+
+<p align="center">
+  <img src="assets/rag_flow.png" alt="Flow of the Advanced RAG system"/>
+</p>
+
 1. **Naive RAG baseline (`Naive_RAG/`)**  
    - `Improved_Basic_RAG.py`: A pure Python module that reads the `.json` embeddings and builds a custom `NaiveVectorStore` + `ChatOpenAI(gpt-4o-mini)` chain.  
    - `RAG_with_Retriever.py`: Lets you control the retriever type, k value, log path, and LangSmith options from the CLI through the `ExperimentConfig` dataclass.  
@@ -160,6 +165,11 @@ The retrievers were evaluated with Ragas metrics, with the results below. To eva
 | BM25                   | 0.891             | **0.92**       | 0.901972      |
 
 ### Reranker Evaluation
+
+<p align="center">
+  <img src="assets/reranker_pipeline_en.png" alt="Pipelines of the 5 rerankers compared"/>
+</p>
+
 With `'answer' : ground_truth` set identically in the Ragas evaluation function so that only reranker performance is measured, the results were as follows.
 
 | Reranker               | Context Precision | Context Recall | Faithfulness | Answer Relevancy | Overall Score |
@@ -296,6 +306,11 @@ With `'answer' : llm_answer` set in the Ragas evaluation function to also evalua
 ---
 
 ## 파이프라인 & 실험 시나리오
+
+<p align="center">
+  <img src="assets/rag_flow.png" alt="구현한 Advanced RAG 시스템 흐름도"/>
+</p>
+
 1. **Naive RAG 베이스 (`Naive_RAG/`)**  
    - `Improved_Basic_RAG.py`: 순수 Python 모듈에서 `.json` 임베딩을 읽고, 맞춤형 `NaiveVectorStore` + `ChatOpenAI(gpt-4o-mini)` 체인을 구성합니다.  
    - `RAG_with_Retriever.py`: `ExperimentConfig` dataclass로 retriever 타입, k 값, 로그 경로, LangSmith 옵션을 CLI에서 제어할 수 있습니다.  
@@ -383,6 +398,11 @@ Retriever들의 성능을 Ragas 매트릭으로 평가한 결과는 아래와 �
 | BM25                   | 0.891             | **0.92**       | 0.901972      |
 
 ### Reranker 성능 평가
+
+<p align="center">
+  <img src="assets/reranker_pipeline.png" alt="실험한 Reranker 5종의 파이프라인 흐름"/>
+</p>
+
 Ragas 평가 함수에서 `'answer' : ground_truth`로 동일하게 하여 리랭커들의 성능만을 평가한 결과는 아래와 같았습니다.
 
 | Reranker               | Context Precision | Context Recall | Faithfulness | Answer Relevancy | Overall Score |
